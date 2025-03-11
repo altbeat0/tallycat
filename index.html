@@ -1,46 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="google-site-verification" content="R4F3ofEo_DHQ3vZ3zLOtgHma3MgIs23egECcgvq0jBY" />
   <meta charset="UTF-8">
-  <!-- The following meta tag helps disable user scaling (and together with the CSS below, minimizes the iOS page shifting issue) -->
-  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Attendance">
-  <link rel="apple-touch-icon" href="duggu.ico">
-  <title>Tracker</title>
+  <meta name="apple-mobile-web-app-title" content="TallyCat">
+  <link rel="apple-touch-icon" href="catto.ico">
+  <title>TallyCat</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
   <style>
-    /* Disable overscroll and tap-zoom on iOS */
+    /* GENERAL STYLES & RESET */
     html, body {
       overscroll-behavior: none;
       -webkit-overflow-scrolling: auto;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      padding: 10px;
+      margin: 0px;
+      font-family: system-ui, -apple-system, sans-serif;
     }
-    * {
+    *, button, input {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-    /* Remove tap highlight for buttons and inputs */
-    button, input, .btn, .attendance-btn {
       -webkit-tap-highlight-color: transparent;
     }
-    body {
-      background-color: #1a1a1a;
-      color: #ffffff;
-      padding: 20px;
-    }
+    /* CONTAINER */
     .container {
       max-width: 600px;
       margin: 0 auto;
     }
+    /* HEADER & PROGRESS */
     .attendance-header {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-      gap: 20px;
+                display: flex;
+        justify-content: center;
+        align-items: flex-end; /* Aligns items by their bottom */
+        gap: 20px;
+        margin-bottom: 20px;
     }
     .attendance-header h2 {
       font-size: 40px;
@@ -48,10 +45,22 @@
       margin-top: 15px;
     }
     .overall-progress {
-      width: 80px;
-      height: 80px;
+      width: 75px;
+      height: 75px;
       position: relative;
     }
+    .progress-circle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .progress-value {
+      position: absolute;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    /* TALLY */
     .attendance-tally {
       display: flex;
       justify-content: center;
@@ -61,22 +70,20 @@
       color: #ffffff;
     }
     .attendance-tally-line {
+      text-align: center;
+      font-size: 85%;
+      color: #ffffff98;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    /* BUTTONS */
+    .action-buttons, .attendance-controls, .medical-controls {
       display: flex;
       justify-content: center;
-      margin-bottom: 12px;
-      font-size: 18px;
-      color: #ffffff98;
-      font-size: 85%;
-      text-align: center;
-      line-height: 1.5;
-    }
-    .action-buttons {
-      display: flex;
       gap: 10px;
       margin-bottom: 20px;
-      justify-content: center;
     }
-    .btn {
+    .btn, .attendance-btn {
       padding: 8px 12px;
       border: none;
       border-radius: 20px;
@@ -84,23 +91,19 @@
       cursor: pointer;
       font-size: 14px;
       transition: opacity 0.2s;
+      touch-action: manipulation;
     }
-    .btn:hover {
+    .btn:hover, .attendance-btn:hover {
       opacity: 0.9;
     }
-    .btn-present {
-      background-color: #22c55e;
-    }
-    .btn-absent {
-      background-color: #ef4444;
-    }
-    .btn-medical {
-      background-color: #d6a30a;
-    }
+    .btn-present { background-color: #22c55e; }
+    .btn-absent { background-color: #ef4444; }
+    .btn-medical { background-color: #d6a30a; }
+    /* SUBJECT CARD */
     .subject-card {
       background-color: #27272a;
       border-radius: 12px;
-      padding: 20px;
+      padding: 15px 15px 5px 15px;
       margin-bottom: 15px;
     }
     .subject-title {
@@ -124,7 +127,7 @@
       color: #a1a1aa;
       font-size: 14px;
     }
-    /* New edit button style */
+    /* EDIT BUTTON */
     .edit-btn {
       background-color: #4b55637d;
       border: none;
@@ -143,27 +146,13 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      justify-content: flex-start;
     }
-    .attendance-btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 20px;
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-      transition: opacity 0.2s;
-      user-select: none;
-      touch-action: manipulation;
-    }
-    .attendance-btn.present {
-      background-color: #22c55e;
-    }
-    .attendance-btn.absent {
-      background-color: #ef4444;
-    }
+    .attendance-btn.present { background-color: #22c55e; }
+    .attendance-btn.absent { background-color: #ef4444; }
     .subject-progress {
       width: 60px;
-      height: 0px;
+      height: 0;
       margin-left: auto;
       margin-top: -30px;
       position: relative;
@@ -174,14 +163,15 @@
       margin-top: 20px;
       text-align: right;
     }
+    /* MEDICAL SECTION */
     .medical-dates {
-      margin-top: 0px;
+      margin-top: 0;
       color: #a1a1aa;
       font-size: 14px;
     }
     .medical-dates ul {
       list-style: none;
-      margin-top: 0px;
+      margin-top: 0;
     }
     .medical-dates li {
       display: flex;
@@ -204,20 +194,7 @@
       padding: 2px 8px;
       font-size: 18px;
     }
-    .delete-date:hover {
-      opacity: 0.8;
-    }
-    .progress-circle {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .progress-value {
-      position: absolute;
-      font-size: 16px;
-      font-weight: 500;
-    }
+    .delete-date:hover { opacity: 0.8; }
     .medical-toggle-btn {
       background-color: #d6a30a;
       color: white;
@@ -240,13 +217,10 @@
       cursor: pointer;
       font-size: 14px;
       text-transform: lowercase;
-      display: block;
       float: left;
       margin: 0 0 10px 0;
     }
-    .reset-btn:hover {
-      opacity: 0.9;
-    }
+    .reset-btn:hover { opacity: 0.9; }
     .medical-dates-container {
       transition: all 0.3s ease;
       margin-top: 10px;
@@ -255,12 +229,12 @@
       border-radius: 8px;
     }
     #medicalAttendanceMessage {
-      margin-top: 0px;
+      margin-top: 0;
       font-size: 16px;
       font-weight: 500;
       text-align: center;
-      padding: 0 30px 20px 30px;
-      color:#b0b0bc
+      padding: 0 30px 20px;
+      color: #b0b0bc;
     }
     .medical-input {
       padding: 5px;
@@ -268,7 +242,7 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 10px;
-      justify-content: center
+      justify-content: center;
     }
     .medical-input input[type="date"] {
       padding: 5px 12px;
@@ -297,12 +271,9 @@
       transition: opacity 0.3s;
       margin-left: 10px;
     }
-    .marking-status.visible {
-      opacity: 1;
-    }
-    .marking-status .tick {
-      margin-right: 4px;
-    }
+    .marking-status.visible { opacity: 1; }
+    .marking-status .tick { margin-right: 4px; }
+    /* FOOTER */
     .footer {
       text-align: center;
       margin: 20px;
@@ -310,46 +281,33 @@
       border-top: 1px solid #444;
       font-size: 14px;
     }
-    .footer .note {
-      margin-bottom: 5px;
-      color: #c5c5c5ac;
-      line-height: 1.5;
-    }
-    .footer .developer {
-      color: #7a7a8097;
-    }
-    /* Prevent double-tap zoom on interactive elements */
-    button, .btn, .attendance-btn {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-    @media (display-mode: standalone) {
-      body {
-        padding-top: 40px;
-      }
-    }
-
-    /* Modal styles for number picker */
+    .footer .note { margin-bottom: 5px; color: #c5c5c5ac; line-height: 1.5; }
+    .footer .developer { color: #7a7a8097; }
+    @media (display-mode: standalone) { body { padding-top: 40px; } }
+    /* MODALS */
     .modal {
-      display: none; /* Hidden by default */
-      position: fixed;
-      z-index: 100;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4); /* Black with opacity */
+                display: none;
+        position: fixed;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(10px); /* Adds a blur effect */
+        background-color: rgba(0, 0, 0, 0.5); /* Dark translucent overlay */
+        align-items: center;
+        justify-content: center;
     }
     .modal-content {
-      background-color: #1a1a1a;
-      margin: 15% auto;
-      padding: 20px;
-      width: 80%;
-      max-width: 300px;
-      border-radius: 8px;
-      color: white;
-      
+                background: rgba(34, 34, 34, 0.9); /* Slightly transparent background */
+        backdrop-filter: blur(10px); /* Adds a frosted glass effect */
+        padding: 20px;
+        width: 85%;
+        max-width: 400px;
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
     .modal-content input {
       width: 100%;
@@ -362,31 +320,102 @@
       color: white;
     }
     .modal-content button {
-      padding: 8px 12px;
+                padding: 10px 16px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 10px 5px;
+        transition: all 0.2s ease;
+    }
+    .modal-content .cancel-btn {   background-color: #ef4444;color: white;}
+    .modal-content .ok-btn {   background-color: #22c55e; color: white;}
+    .save-btn {
+      background-color: #4ade80c5;
+      color: white;
+      padding: 8px 16px;
       border: none;
       border-radius: 20px;
-      margin-right: 10px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
+      text-transform: lowercase;
+      display: block;
+      margin: 0 0 10px 0;
     }
-    .modal-content .cancel-btn {
-      background-color: #ef4444;
-      color: white;
-    }
-    .modal-content .ok-btn {
-      background-color: #22c55e;
-      color: white;
-    }
-
-    .blurred {
-  filter: blur(3px);
-  transition: filter 0.05s ease;
+    .save-btn:hover { opacity: 0.9; }
+    /* SETTINGS MODAL */
+    .settings-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #a1a1aa;
+  padding: 8px;
 }
 
+    .settings-content { max-width: 400px; width: 90%; }
+    .settings-content h3 { margin-bottom: 20px; font-size: 22px; font-weight: 400; text-align: center; }
+    .settings-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #444; }
+    .settings-section h4 { margin-bottom: 15px; font-size: 18px; font-weight: 400; }
+    .subject-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+    .control-btn {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      border: none;
+      border-radius: 50%;
+      background-color: #27272a;
+      color: white;
+      cursor: pointer;
+    }
+    #subjectCount {
+      font-size: 24px;
+      min-width: 30px;
+      text-align: center;
+    }
+    .apply-btn, .reset-all-btn, .close-settings-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .btn, .attendance-btn, .control-btn {
+        transition: transform var(--transition-speed), opacity var(--transition-speed);
+        }
+    .btn:hover, .attendance-btn:hover, .control-btn:hover {
+    transform: scale(1.03);
+    opacity: 0.9;
+    }
+
+
+    .apply-btn { background-color: #3b82f6; color: white; }
+    .reset-all-btn { background-color: #ef4444; color: white; }
+    .close-settings-btn { background-color: #27272a; color: white; margin-top: px; }
+    .warning-text { color: #ef4444; margin-bottom: 15px; text-align: center; font-size: 14px; }
+    .confirm-content { max-width: 350px; }
+    .confirm-content h3 { margin-bottom: 15px; font-size: 20px; text-align: center; }
+    .confirm-content p { margin-bottom: 20px; text-align: center; }
+    .confirm-buttons { display: flex; justify-content: space-between; }
+    .confirm-btn {   background-color: #ef4444; color: white;}
+    button:hover { opacity: 0.8;}
   </style>
 </head>
 <body>
   <div class="container">
+    <button id="settingsBtn" class="settings-btn">⚙️</button>
     <div class="attendance-header">
       <h2>attendance:</h2>
       <div class="overall-progress progress-circle">
@@ -394,21 +423,19 @@
         <span class="progress-value">0%</span>
       </div>
     </div>
-    <!-- Tally display with new attendance hint line added -->
+    <!-- Tally Display -->
     <div class="attendance-tally">
       <span id="totalAttended">total attended: 0</span>
       <span id="totalLectures">total lectures: 0</span>
-      <!-- New hint line; styled as block so it appears on its own line -->
     </div>
-    <div class="attendance-tally-line"><span id="attendanceHint" style="display:block;"></span>
-    </div>
-    
+    <div class="attendance-tally-line"><span id="attendanceHint" style="display:block;"></span></div>
+    <!-- Action Buttons -->
     <div class="action-buttons">
       <button class="btn btn-present" onclick="markAllPresent()">all present</button>
       <button class="btn btn-absent" onclick="markAllAbsent()">all absent</button>
       <button class="btn btn-medical" onclick="markMedical()">mark for medical</button>
     </div>
-    <!-- Subjects section -->
+    <!-- Subjects Section -->
     <div class="subjects">
       <div class="subject-card" data-subject="evidence">
         <h3 class="subject-title" onclick="editSubjectName(this)">evidence</h3>
@@ -531,9 +558,10 @@
         </div>
       </div>
     </div>
-    <!-- Medical Section -->
+    <!-- Medical Section --> 
     <div class="medical-section">
       <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px;">
+        <button class="save-btn" onclick="saveCurrentAsBaseline()">🔒 save</button>
         <button class="reset-btn" onclick="resetTodayAttendance()">↺ reset</button>
         <button class="medical-toggle-btn">show medical dates</button>
       </div>
@@ -542,44 +570,84 @@
           <input type="date" id="medicalDateInput" />
           <button onclick="addPastMedicalDate()">add past date</button>
         </div>
-         <p id="medicalAttendanceMessage">after submitting medicals, your attendance would be: 0%</p>
+        <p id="medicalAttendanceMessage">after submitting medicals, your attendance would be: 0% (assuming that all 5 lectures were conducted on those days)</p>
         <div class="medical-dates">
           <ul id="medicalDatesList"></ul>
         </div>
       </div>
       <div class="footer">
         <p class="note">note: subjects can be renamed by tapping on them.</p>
-        <p class="note"> install this as an app on iOS by clicking on the "Share" button and then the "Add to homescreen" button.</p>
+        <p class="note">install this as an app on iOS by clicking on the "Share" button and then the "Add to homescreen" button.</p>
         <p class="developer">developed by @umarxshaikh</p>
       </div>
     </div>
   </div>
-
+  
+  <!-- Number Picker Modal -->
   <div id="numberPickerModal" class="modal">
     <div class="modal-content">
       <input type="number" id="numberPickerInput" min="0" max="999" />
       <div style="text-align: right;">
-        <button class="cancel-btn" onclick="closeNumberPicker()">Cancel</button>
-        <button class="ok-btn" onclick="applyNumberPicker()">OK</button>
+        <button class="cancel-btn" onclick="closeNumberPicker()">cancel</button>
+        <button class="ok-btn" onclick="applyNumberPicker()">confirm</button>
       </div>
     </div>
   </div>
-
+  
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content settings-content">
+      <h3>Settings</h3>
+      <div class="settings-section">
+        <h4>Number of Subjects</h4>
+        <div class="subject-control">
+          <button class="control-btn" onclick="decreaseSubjects(event)">-</button>
+          <span id="subjectCount">5</span>
+          <button class="control-btn" onclick="increaseSubjects(event)">+</button>
+        </div>
+        <button class="apply-btn" onclick="applySubjectCount()">apply changes</button>
+      </div>
+      <div class="settings-section">
+        <h4>Reset All Data</h4>
+        <p class="warning-text">WARNING: this will delete all attendance data and cannot be undone.</p>
+        <button class="reset-all-btn" onclick="confirmResetAll()">reset everything</button>
+      </div>
+      <button class="close-settings-btn" onclick="closeSettingsModal()">close</button>
+    </div>
+  </div>
+  
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content confirm-content">
+      <h3>Confirm Reset</h3>
+      <p>are you sure you want to reset all data? this action cannot be undone.</p>
+      <div class="confirm-buttons">
+        <button class="cancel-btn" onclick="closeConfirmModal()">cancel</button>
+        <button class="confirm-btn" onclick="resetAllData()">reset everything</button>
+      </div>
+    </div>
+  </div>
+  
   <script>
     let overallChart;
     const subjectCharts = {};
-
-    // Global variables for number picker
     let currentEditElement = null;
     let currentEditType = '';
-
-    // On page load, initialize charts, load data, and set baseline attendance for today.
+    
     window.onload = function() {
       initializeCharts();
       loadData();
       setBaselineAttendanceData();
+      checkAndResetMarkings();
+      setInterval(() => {
+        const now = new Date();
+        if (now.getHours() === 0 && now.getMinutes() === 0) {
+          document.querySelectorAll('.marking-status').forEach(status => status.classList.remove('visible'));
+          localStorage.removeItem('markingTimestamps');
+        }
+      }, 60000);
     };
-
+    
     function initializeCharts() {
       const chartOptions = {
         type: 'doughnut',
@@ -594,10 +662,7 @@
           cutout: '80%',
           responsive: true,
           maintainAspectRatio: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false }
-          }
+          plugins: { legend: { display: false }, tooltip: { enabled: false } }
         }
       };
       const overallCtx = document.getElementById('overallChart').getContext('2d');
@@ -608,9 +673,8 @@
         subjectCharts[subject] = new Chart(ctx, chartOptions);
       });
     }
-
+    
     function markAttendance(btn, status) {
-      // Existing attendance marking functionality remains unchanged
       handleTap(btn, function() {
         const card = btn.closest('.subject-card');
         const attended = card.querySelector('.attended');
@@ -623,9 +687,7 @@
         showMarkingStatus(card);
       });
     }
-
-    // Removed decrementAttended and decrementTotal functions in favor of the new number picker
-
+    
     function updatePercentages(card) {
       const attended = parseInt(card.querySelector('.attended').textContent);
       const total = parseInt(card.querySelector('.total').textContent);
@@ -636,7 +698,7 @@
       updateOverallAttendance();
       saveData();
     }
-
+    
     function updateSubjectChart(subject, percentage) {
       const chart = subjectCharts[subject];
       chart.data.datasets[0].data = [percentage, 100 - percentage];
@@ -646,7 +708,7 @@
       ];
       chart.update();
     }
-
+    
     function updateOverallAttendance() {
       let totalAttended = 0;
       let totalLectures = 0;
@@ -668,7 +730,7 @@
       updateAttendanceHint(totalAttended, totalLectures);
       updateMedicalAttendanceMessage();
     }
-
+    
     function updateAttendanceHint(totalAttended, totalLectures) {
       let hintText = "";
       if (totalLectures === 0) {
@@ -690,7 +752,7 @@
       }
       document.getElementById('attendanceHint').textContent = hintText;
     }
-
+    
     function markAllPresent() {
       document.querySelectorAll('.subject-card').forEach(card => {
         const attended = card.querySelector('.attended');
@@ -698,24 +760,24 @@
         attended.textContent = parseInt(attended.textContent) + 1;
         total.textContent = parseInt(total.textContent) + 1;
         updatePercentages(card);
-        showMarkingStatus(card); 
+        showMarkingStatus(card);
       });
     }
-
+    
     function markAllAbsent() {
       document.querySelectorAll('.subject-card').forEach(card => {
         const total = card.querySelector('.total');
         total.textContent = parseInt(total.textContent) + 1;
         updatePercentages(card);
-        showMarkingStatus(card); 
+        showMarkingStatus(card);
       });
     }
-
+    
     function markMedical() {
       const todayStr = new Date().toISOString().split('T')[0];
       addMedicalDate(todayStr);
     }
-
+    
     function editSubjectName(element) {
       const currentName = element.textContent;
       const newName = prompt('Enter new subject name:', currentName);
@@ -723,8 +785,9 @@
         element.textContent = newName.trim();
         saveData();
       }
+      event.stopPropagation();
     }
-
+    
     function saveData() {
       const data = {};
       document.querySelectorAll('.subject-card').forEach(card => {
@@ -737,13 +800,13 @@
       });
       localStorage.setItem('attendanceData', JSON.stringify(data));
     }
-
+    
     function saveMedicalDates() {
       const dates = Array.from(document.querySelectorAll('#medicalDatesList li'))
         .map(li => li.getAttribute('data-date'));
       localStorage.setItem('medicalDates', JSON.stringify(dates));
     }
-
+    
     function addMedicalDate(dateStr) {
       const exists = Array.from(document.querySelectorAll('#medicalDatesList li'))
         .some(li => li.getAttribute('data-date') === dateStr);
@@ -770,7 +833,7 @@
       saveMedicalDates();
       updateMedicalAttendanceMessage();
     }
-
+    
     function addPastMedicalDate() {
       const dateInput = document.getElementById('medicalDateInput');
       if (!dateInput.value) {
@@ -780,7 +843,7 @@
       addMedicalDate(dateInput.value);
       dateInput.value = "";
     }
-
+    
     function updateMedicalAttendanceMessage() {
       let totalAttended = 0;
       let totalLectures = 0;
@@ -791,26 +854,26 @@
       const medicalDatesCount = document.querySelectorAll('#medicalDatesList li').length;
       let newAttendance = 0;
       if (totalLectures > 0) {
-        newAttendance = ((totalAttended + 5 * medicalDatesCount) / totalLectures * 100).toFixed(0);
+        newAttendance = ((totalAttended + numberOfSubjects * medicalDatesCount) / totalLectures * 100).toFixed(0);
       }
       document.getElementById('medicalAttendanceMessage').textContent =
-      `after submitting medicals, your attendance would be: ${newAttendance}% (assuming that all 5 lectures were conducted on those days)`;
+        `after submitting medicals, your attendance would be: ${newAttendance}% (assuming that all lectures were conducted on those days)`;
     }
-
+    
     document.querySelector('.medical-toggle-btn').addEventListener('click', function() {
       const container = document.querySelector('.medical-dates-container');
       const isHidden = container.style.display === 'none';
       container.style.display = isHidden ? 'block' : 'none';
       this.textContent = isHidden ? 'hide medical dates' : 'show medical dates';
     });
-
+    
     function isToday(date) {
       const today = new Date();
       return date.getDate() === today.getDate() &&
              date.getMonth() === today.getMonth() &&
              date.getFullYear() === today.getFullYear();
     }
-
+    
     function showMarkingStatus(card) {
       const markingStatus = card.querySelector('.marking-status');
       markingStatus.classList.add('visible');
@@ -819,10 +882,9 @@
       markings[subject] = new Date().toISOString();
       localStorage.setItem('markingTimestamps', JSON.stringify(markings));
     }
-
+    
     function checkAndResetMarkings() {
       const markings = JSON.parse(localStorage.getItem('markingTimestamps') || '{}');
-      const markingStatuses = document.querySelectorAll('.marking-status');
       Object.entries(markings).forEach(([subject, timestamp]) => {
         const date = new Date(timestamp);
         const card = document.querySelector(`[data-subject="${subject}"]`);
@@ -834,26 +896,13 @@
         }
       });
     }
-
-    window.addEventListener('load', () => {
-      checkAndResetMarkings();
-      setInterval(() => {
-        const now = new Date();
-        if (now.getHours() === 0 && now.getMinutes() === 0) {
-          document.querySelectorAll('.marking-status').forEach(status => status.classList.remove('visible'));
-          localStorage.removeItem('markingTimestamps');
-        }
-      }, 60000);
-    });
-
+    
     function setBaselineAttendanceData() {
       const today = new Date().toISOString().split('T')[0];
       const storedBaseline = localStorage.getItem('baselineAttendanceData');
       if (storedBaseline) {
         const baselineData = JSON.parse(storedBaseline);
-        if (baselineData.date === today) {
-          return;
-        }
+        if (baselineData.date === today) return;
       }
       const baselineData = { date: today, subjects: {} };
       document.querySelectorAll('.subject-card').forEach(card => {
@@ -865,7 +914,7 @@
       });
       localStorage.setItem('baselineAttendanceData', JSON.stringify(baselineData));
     }
-
+    
     function resetTodayAttendance() {
       const baselineDataStr = localStorage.getItem('baselineAttendanceData');
       if (!baselineDataStr) {
@@ -890,9 +939,9 @@
         status.classList.remove('visible');
       });
       localStorage.removeItem('markingTimestamps');
-      alert("Attendance for today has been reset to baseline.");
+      alert("attendance for today has been reset to baseline");
     }
-
+    
     function loadData() {
       const savedData = localStorage.getItem('attendanceData');
       if (savedData) {
@@ -931,69 +980,186 @@
       }
       updateMedicalAttendanceMessage();
     }
-
-    // Functions for the number picker modal
+    
     function openNumberPicker(btn, type) {
       currentEditType = type;
       const statItem = btn.parentElement;
       currentEditElement = statItem.querySelector('.' + type);
       const currentValue = parseInt(currentEditElement.textContent);
       document.getElementById('numberPickerInput').value = currentValue;
-      document.getElementById('numberPickerModal').style.display = 'block';
-      document.querySelector('.container').classList.add('blurred');
+      document.getElementById('numberPickerModal').style.display = 'flex';
+      event.stopPropagation();
     }
-
+    
     function closeNumberPicker() {
       document.getElementById('numberPickerModal').style.display = 'none';
-      document.querySelector('.container').classList.remove('blurred');
       currentEditElement = null;
       currentEditType = '';
     }
-
+    
     function applyNumberPicker() {
-  const newValue = parseInt(document.getElementById('numberPickerInput').value);
-  if (isNaN(newValue) || newValue < 0) {
-    alert("Please enter a valid non-negative number");
-    return;
-  }
-  
-  currentEditElement.textContent = newValue;
-  
-  const card = currentEditElement.closest('.subject-card');
-  if (currentEditType === 'attended') {
-    const totalElement = card.querySelector('.total');
-    const currentTotal = parseInt(totalElement.textContent);
-    if (newValue > currentTotal) {
-      totalElement.textContent = newValue;
+      const newValue = parseInt(document.getElementById('numberPickerInput').value);
+      if (isNaN(newValue) || newValue < 0) {
+        alert("Please enter a valid non-negative number");
+        return;
+      }
+      currentEditElement.textContent = newValue;
+      const card = currentEditElement.closest('.subject-card');
+      if (currentEditType === 'attended') {
+        const totalElement = card.querySelector('.total');
+        const currentTotal = parseInt(totalElement.textContent);
+        if (newValue > currentTotal) {
+          totalElement.textContent = newValue;
+        }
+      } else if (currentEditType === 'total') {
+        const attendedElement = card.querySelector('.attended');
+        const currentAttended = parseInt(attendedElement.textContent);
+        if (newValue < currentAttended) {
+          attendedElement.textContent = newValue;
+        }
+      }
+      updatePercentages(card);
+      closeNumberPicker();
     }
-  } else if (currentEditType === 'total') {
-    const attendedElement = card.querySelector('.attended');
-    const currentAttended = parseInt(attendedElement.textContent);
-    if (newValue < currentAttended) {
-      attendedElement.textContent = newValue;
-    }
-  }
-  
-  updatePercentages(card);
-  closeNumberPicker();
-}
-
-    // Close modal if user clicks outside modal content
+    
     window.onclick = function(event) {
       const modal = document.getElementById('numberPickerModal');
       if (event.target === modal) {
         closeNumberPicker();
       }
-    }
-
-    // Helper function to prevent rapid multiple taps
+    };
+    
     function handleTap(button, callback) {
       button.disabled = true;
       callback();
-      setTimeout(() => {
-        button.disabled = false;
-      }, 300);
+      setTimeout(() => { button.disabled = false; }, 300);
     }
+    
+    function saveCurrentAsBaseline() {
+      const baselineData = { date: new Date().toISOString().split('T')[0], subjects: {} };
+      document.querySelectorAll('.subject-card').forEach(card => {
+        const subject = card.dataset.subject;
+        baselineData.subjects[subject] = {
+          attended: parseInt(card.querySelector('.attended').textContent),
+          total: parseInt(card.querySelector('.total').textContent)
+        };
+      });
+      localStorage.setItem('baselineAttendanceData', JSON.stringify(baselineData));
+      alert("current attendance saved as baseline");
+    }
+    
+    // SETTINGS FUNCTIONALITY
+    document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
+    
+    function openSettingsModal() {
+      document.getElementById('subjectCount').textContent = document.querySelectorAll('.subject-card').length;
+      document.getElementById('settingsModal').style.display = 'flex';
+    }
+    
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').style.display = 'none';
+    }
+    
+    function decreaseSubjects(event) {
+      event.stopPropagation();
+      let count = parseInt(document.getElementById('subjectCount').textContent);
+      if (count > 1) {
+        document.getElementById('subjectCount').textContent = count - 1;
+      }
+    }
+    
+    function increaseSubjects(event) {
+      event.stopPropagation();
+      let count = parseInt(document.getElementById('subjectCount').textContent);
+      document.getElementById('subjectCount').textContent = count + 1;
+    }
+    
+    function applySubjectCount() {
+      const newCount = parseInt(document.getElementById('subjectCount').textContent);
+      const currentCount = document.querySelectorAll('.subject-card').length;
+      if (newCount === currentCount) {
+        closeSettingsModal();
+        return;
+      }
+      if (newCount < currentCount) {
+        const subjects = document.querySelectorAll('.subject-card');
+        for (let i = currentCount - 1; i >= newCount; i--) {
+          subjects[i].remove();
+        }
+      } else {
+        const subjectsContainer = document.querySelector('.subjects');
+        const templateCard = document.querySelector('.subject-card').cloneNode(true);
+        for (let i = currentCount; i < newCount; i++) {
+          const newCard = templateCard.cloneNode(true);
+          const subjectName = `subject ${i + 1}`;
+          newCard.dataset.subject = subjectName.replace(/\s+/g, '-');
+          newCard.querySelector('.subject-title').textContent = subjectName;
+          newCard.querySelector('.attended').textContent = '0';
+          newCard.querySelector('.total').textContent = '0';
+          const canvas = newCard.querySelector('.subject-chart');
+          canvas.id = `chart-${i}`;
+          newCard.querySelector('.subject-title').onclick = function() { editSubjectName(this); };
+          newCard.querySelector('.edit-btn[onclick*="attended"]').onclick = function() { openNumberPicker(this, 'attended'); };
+          newCard.querySelector('.edit-btn[onclick*="total"]').onclick = function() { openNumberPicker(this, 'total'); };
+          newCard.querySelector('.attendance-btn.present').onclick = function() { markAttendance(this, 'present'); };
+          newCard.querySelector('.attendance-btn.absent').onclick = function() { markAttendance(this, 'absent'); };
+          subjectsContainer.appendChild(newCard);
+          const ctx = canvas.getContext('2d');
+          const chartOptions = {
+            type: 'doughnut',
+            data: {
+              datasets: [{
+                data: [0, 100],
+                backgroundColor: ['#22c55e', '#27272a'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              cutout: '80%',
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+          };
+          subjectCharts[newCard.dataset.subject] = new Chart(ctx, chartOptions);
+        }
+      }
+      saveData();
+      updateOverallAttendance();
+      closeSettingsModal();
+    }
+    
+    function confirmResetAll() {
+      closeSettingsModal();
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+    
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+    }
+    
+    function resetAllData() {
+      localStorage.removeItem('attendanceData');
+      localStorage.removeItem('medicalDates');
+      localStorage.removeItem('markingTimestamps');
+      localStorage.removeItem('baselineAttendanceData');
+      document.querySelectorAll('.subject-card').forEach(card => {
+        card.querySelector('.attended').textContent = '0';
+        card.querySelector('.total').textContent = '0';
+        updatePercentages(card);
+      });
+      document.getElementById('medicalDatesList').innerHTML = '';
+      document.querySelectorAll('.marking-status').forEach(status => {
+        status.classList.remove('visible');
+      });
+      setBaselineAttendanceData();
+      closeConfirmModal();
+      alert("All data has been reset successfully");
+    }
+    
+    const numberOfSubjects = document.querySelectorAll('.subject-card').length;
+    console.log("Number of subjects:", numberOfSubjects);
+    console.log("Optimized and loaded");
   </script>
 </body>
 </html>
