@@ -772,6 +772,8 @@
     let currentEditType = '';
     
     window.onload = function() {
+      // Restore subject cards based on saved count before anything else
+      restoreSubjectCardsFromStorage();
       initializeCharts();
       loadData();
       setBaselineAttendanceData();
@@ -784,6 +786,44 @@
         }
       }, 60000);
     };
+    
+    function restoreSubjectCardsFromStorage() {
+      const savedData = JSON.parse(localStorage.getItem('attendanceData') || '{}');
+      let subjectKeys = Object.keys(savedData);
+      let subjectCount = parseInt(localStorage.getItem('subjectCount'));
+      if (!subjectCount && subjectKeys.length > 0) {
+        subjectCount = subjectKeys.length;
+      }
+      if (!subjectCount) subjectCount = 5;
+      const subjectsContainer = document.querySelector('.subjects');
+      // Remove all but the first card (template)
+      while (subjectsContainer.children.length > 1) {
+        subjectsContainer.removeChild(subjectsContainer.lastChild);
+      }
+      // Update the first card's dataset and title
+      const templateCard = subjectsContainer.children[0];
+      templateCard.dataset.subject = 'subject-1';
+      templateCard.querySelector('.subject-title').textContent = 'subject 1';
+      templateCard.querySelector('.attended').textContent = '0';
+      templateCard.querySelector('.total').textContent = '0';
+      // Add more cards as needed
+      for (let i = 1; i < subjectCount; i++) {
+        const newCard = templateCard.cloneNode(true);
+        const subjectName = `subject ${i + 1}`;
+        newCard.dataset.subject = subjectName.replace(/\s+/g, '-');
+        newCard.querySelector('.subject-title').textContent = subjectName;
+        newCard.querySelector('.attended').textContent = '0';
+        newCard.querySelector('.total').textContent = '0';
+        const canvas = newCard.querySelector('.subject-chart');
+        canvas.id = `chart-${i}`;
+        newCard.querySelector('.subject-title').onclick = function() { editSubjectName(this); };
+        newCard.querySelector('.edit-btn[onclick*="attended"]').onclick = function() { openNumberPicker(this, 'attended'); };
+        newCard.querySelector('.edit-btn[onclick*="total"]').onclick = function() { openNumberPicker(this, 'total'); };
+        newCard.querySelector('.attendance-btn.present').onclick = function() { markAttendance(this, 'present'); };
+        newCard.querySelector('.attendance-btn.absent').onclick = function() { markAttendance(this, 'absent'); };
+        subjectsContainer.appendChild(newCard);
+      }
+    }
     
     function initializeCharts() {
       const chartOptions = {
@@ -936,6 +976,8 @@
         };
       });
       localStorage.setItem('attendanceData', JSON.stringify(data));
+      // Also save subject count
+      localStorage.setItem('subjectCount', document.querySelectorAll('.subject-card').length);
     }
     
     function saveMedicalDates() {
@@ -1301,6 +1343,8 @@
           subjectCharts[newCard.dataset.subject] = new Chart(ctx, chartOptions);
         }
       }
+      // Save subject count
+      localStorage.setItem('subjectCount', newCount);
       saveData();
       updateOverallAttendance();
       closeSettingsModal();
