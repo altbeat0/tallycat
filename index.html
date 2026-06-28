@@ -14,22 +14,38 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TallyCat">
-  <link rel="apple-touch-icon" href="catto.ico">
+  <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
   <title>TallyCat</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
   <style>
     /* GENERAL STYLES & RESET */
+    *::-webkit-scrollbar, html::-webkit-scrollbar, body::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      background: transparent !important;
+      -webkit-appearance: none !important;
+    }
     html, body {
       overscroll-behavior: none;
       -webkit-overflow-scrolling: auto;
       background-color: #1a1a1a;
       color: #ffffff;
       padding: 10px;
+      padding-top: calc(10px + env(safe-area-inset-top));
+      padding-bottom: env(safe-area-inset-bottom);
       margin: 0px;
       font-family: system-ui, -apple-system, sans-serif;
+      scrollbar-width: none; /* Firefox */
     }
     *, button, input {
       margin: 0;
@@ -93,6 +109,7 @@
       justify-content: center;
       gap: 10px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
     .btn, .attendance-btn {
       padding: 8px 12px;
@@ -103,6 +120,8 @@
       font-size: 14px;
       transition: opacity 0.2s;
       touch-action: manipulation;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .btn:hover, .attendance-btn:hover {
       opacity: 0.9;
@@ -213,11 +232,11 @@
       border: none;
       border-radius: 20px;
       cursor: pointer;
-      display: block;
       text-transform: lowercase;
-      float: right;
-      margin: 0 0 10px 0;
+      margin: 0;
       font-size: 14px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .reset-btn {
       background-color: #007bffc5;
@@ -228,8 +247,9 @@
       cursor: pointer;
       font-size: 14px;
       text-transform: lowercase;
-      float: left;
-      margin: 0 0 10px 0;
+      margin: 0;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .reset-btn:hover { opacity: 0.9; }
     .medical-dates-container {
@@ -363,16 +383,79 @@
       cursor: pointer;
       font-size: 14px;
       text-transform: lowercase;
-      display: block;
-      margin: 0 0 10px 0;
+      margin: 0;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .save-btn:hover { opacity: 0.9; }
+    /* PWA INSTALL MODAL */
+    .pwa-modal-content {
+      max-width: 400px;
+      width: 90%;
+      padding: 24px 20px;
+      border-radius: 16px;
+      background: rgba(34, 34, 34, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+    .pwa-modal-title {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #ffffff;
+      text-transform: lowercase;
+    }
+    .pwa-modal-desc {
+      font-size: 14px;
+      color: #a1a1aa;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .pwa-steps {
+      background: #1e1e20;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: left;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #e4e4e7;
+      border: 1px solid #333;
+    }
+    .pwa-step-item {
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .pwa-step-item:last-child {
+      margin-bottom: 0;
+    }
+    .pwa-step-item strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .pwa-gotit-btn {
+      background-color: #3f3f46;
+      color: white;
+      border: 1px solid #52525b;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.2s, transform 0.2s;
+      text-transform: lowercase;
+    }
+    .pwa-gotit-btn:hover {
+      background-color: #52525b;
+      transform: scale(1.02);
+    }
     /* SETTINGS MODAL */
     .settings-btn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: none;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: none;
   border: none;
   font-size: 24px;
   cursor: pointer;
@@ -454,6 +537,8 @@
       box-sizing: border-box;
       font-weight: 500;
       transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .apply-btn {
       background-color: #3b82f6;
@@ -479,7 +564,7 @@
     }
     .warning-text {
       color: #ef4444;
-      margin-bottom: 12px;
+      margin-bottom: 15px;
       text-align: center;
       font-size: 14px;
     }
@@ -491,11 +576,6 @@
     opacity: 0.9;
     }
 
-
-    .apply-btn { background-color: #3b82f6; color: white; }
-    .reset-all-btn { background-color: #ef4444; color: white; }
-    .close-settings-btn { background-color: #27272a; color: white; margin-top: px; }
-    .warning-text { color: #ef4444; margin-bottom: 15px; text-align: center; font-size: 14px; }
     .confirm-content { max-width: 350px; }
     .confirm-content h3 { margin-bottom: 15px; font-size: 20px; text-align: center; }
     .confirm-content p { margin-bottom: 20px; text-align: center; }
@@ -572,106 +652,10 @@
           <span class="marking-status"><span class="tick">✓</span>marked</span>
         </div>
       </div>
-      <div class="subject-card" data-subject="subject-2">
-        <h3 class="subject-title" onclick="editSubjectName(this)">subject 2</h3>
-        <div class="subject-stats">
-          <div class="stat-item">
-            <span class="stat-label">attended:</span>
-            <span class="attended">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'attended')">✎</button>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">total:</span>
-            <span class="total">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'total')">✎</button>
-          </div>
-          <div class="subject-progress progress-circle">
-            <canvas class="subject-chart"></canvas>
-            <span class="progress-value">0%</span>
-          </div>
-        </div>
-        <div class="attendance-controls">
-          <button class="attendance-btn present" onclick="markAttendance(this, 'present')">present</button>
-          <button class="attendance-btn absent" onclick="markAttendance(this, 'absent')">absent</button>
-          <span class="marking-status"><span class="tick">✓</span>marked</span>
-        </div>
-      </div>
-      <div class="subject-card" data-subject="subject-3">
-        <h3 class="subject-title" onclick="editSubjectName(this)">subject 3</h3>
-        <div class="subject-stats">
-          <div class="stat-item">
-            <span class="stat-label">attended:</span>
-            <span class="attended">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'attended')">✎</button>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">total:</span>
-            <span class="total">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'total')">✎</button>
-          </div>
-          <div class="subject-progress progress-circle">
-            <canvas class="subject-chart"></canvas>
-            <span class="progress-value">0%</span>
-          </div>
-        </div>
-        <div class="attendance-controls">
-          <button class="attendance-btn present" onclick="markAttendance(this, 'present')">present</button>
-          <button class="attendance-btn absent" onclick="markAttendance(this, 'absent')">absent</button>
-          <span class="marking-status"><span class="tick">✓</span>marked</span>
-        </div>
-      </div>
-      <div class="subject-card" data-subject="subject-4">
-        <h3 class="subject-title" onclick="editSubjectName(this)">subject 4</h3>
-        <div class="subject-stats">
-          <div class="stat-item">
-            <span class="stat-label">attended:</span>
-            <span class="attended">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'attended')">✎</button>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">total:</span>
-            <span class="total">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'total')">✎</button>
-          </div>
-          <div class="subject-progress progress-circle">
-            <canvas class="subject-chart"></canvas>
-            <span class="progress-value">0%</span>
-          </div>
-        </div>
-        <div class="attendance-controls">
-          <button class="attendance-btn present" onclick="markAttendance(this, 'present')">present</button>
-          <button class="attendance-btn absent" onclick="markAttendance(this, 'absent')">absent</button>
-          <span class="marking-status"><span class="tick">✓</span>marked</span>
-        </div>
-      </div>
-      <div class="subject-card" data-subject="subject-5">
-        <h3 class="subject-title" onclick="editSubjectName(this)">subject 5</h3>
-        <div class="subject-stats">
-          <div class="stat-item">
-            <span class="stat-label">attended:</span>
-            <span class="attended">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'attended')">✎</button>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">total:</span>
-            <span class="total">0</span>
-            <button class="edit-btn" onclick="openNumberPicker(this, 'total')">✎</button>
-          </div>
-          <div class="subject-progress progress-circle">
-            <canvas class="subject-chart"></canvas>
-            <span class="progress-value">0%</span>
-          </div>
-        </div>
-        <div class="attendance-controls">
-          <button class="attendance-btn present" onclick="markAttendance(this, 'present')">present</button>
-          <button class="attendance-btn absent" onclick="markAttendance(this, 'absent')">absent</button>
-          <span class="marking-status"><span class="tick">✓</span>marked</span>
-        </div>
-      </div>
     </div>
     <!-- Medical Section --> 
     <div class="medical-section">
-      <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px;">
+      <div class="medical-controls" style="margin-bottom: 10px;">
         <button class="save-btn" onclick="saveCurrentAsBaseline()">🔒 save</button>
         <button class="reset-btn" onclick="resetTodayAttendance()">↺ undo</button>
         <button class="medical-toggle-btn">show medical dates</button>
@@ -688,8 +672,8 @@
       </div>
       <div class="footer">
         <p class="note">note: subjects can be renamed by tapping on them.</p>
-        <p class="note">install this as an app on iOS by clicking on the "Share" button and then the "Add to homescreen" button.</p>
-        <p class="developer">developed by @umarxshaikh</p>
+        <p class="note">install as an app on iOS (Share → Add to Home Screen) or Android/Chrome (Menu → Install / Add to Home screen).</p>
+        <p class="developer">developed by @umr.salim</p>
       </div>
     </div>
   </div>
@@ -756,26 +740,23 @@
       </div>
     </div>
   </div>
-  
-  <!-- Manifest (inline for offline support) -->
-  <script type="application/manifest+json" id="inline-manifest">
-    {
-      "name": "TallyCat",
-      "short_name": "TallyCat",
-      "start_url": ".",
-      "display": "standalone",
-      "background_color": "#1a1a1a",
-      "theme_color": "#1a1a1a",
-      "icons": [
-        { "src": "catto.ico", "sizes": "192x192", "type": "image/png" }
-      ]
-    }
-  </script>
-  <meta name="theme-color" content="#1a1a1a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="TallyCat">
-  <link rel="apple-touch-icon" href="catto.ico">
+
+  <!-- PWA Installation Modal -->
+  <div id="pwaInstallModal" class="modal">
+    <div class="modal-content pwa-modal-content">
+      <h3 class="pwa-modal-title">install tallycat</h3>
+      <p class="pwa-modal-desc">add tallycat to your home screen for a seamless native experience.</p>
+      <div class="pwa-steps">
+        <div class="pwa-step-item">
+          <strong>iOS (Safari):</strong> tap the <strong>Share</strong> button and select <strong>"Add to Home Screen"</strong>.
+        </div>
+        <div class="pwa-step-item">
+          <strong>Android (Chrome):</strong> tap the <strong>Menu (⋮)</strong> and select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.
+        </div>
+      </div>
+      <button class="pwa-gotit-btn" onclick="closePwaInstallModal()">got it!</button>
+    </div>
+  </div>
   <script>
     let overallChart;
     const subjectCharts = {};
@@ -789,6 +770,7 @@
       loadData();
       setBaselineAttendanceData();
       checkAndResetMarkings();
+      checkPwaInstallPrompt();
       setInterval(() => {
         const now = new Date();
         if (now.getHours() === 0 && now.getMinutes() === 0) {
@@ -797,6 +779,25 @@
         }
       }, 60000);
     };
+
+    function checkPwaInstallPrompt() {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                          window.navigator.standalone === true ||
+                          (document.referrer && document.referrer.includes('android-app://'));
+      const dismissed = localStorage.getItem('pwaPromptDismissed');
+      if (!isStandalone && !dismissed) {
+        setTimeout(() => {
+          const modal = document.getElementById('pwaInstallModal');
+          if (modal) modal.style.display = 'flex';
+        }, 600);
+      }
+    }
+
+    function closePwaInstallModal() {
+      const modal = document.getElementById('pwaInstallModal');
+      if (modal) modal.style.display = 'none';
+      localStorage.setItem('pwaPromptDismissed', 'true');
+    }
     
     function restoreSubjectCardsFromStorage() {
       const savedData = JSON.parse(localStorage.getItem('attendanceData') || '{}');
@@ -817,6 +818,7 @@
       templateCard.querySelector('.subject-title').textContent = 'subject 1';
       templateCard.querySelector('.attended').textContent = '0';
       templateCard.querySelector('.total').textContent = '0';
+      templateCard.querySelector('.progress-value').textContent = '0%';
       // Add more cards as needed
       for (let i = 1; i < subjectCount; i++) {
         const newCard = templateCard.cloneNode(true);
@@ -825,6 +827,7 @@
         newCard.querySelector('.subject-title').textContent = subjectName;
         newCard.querySelector('.attended').textContent = '0';
         newCard.querySelector('.total').textContent = '0';
+        newCard.querySelector('.progress-value').textContent = '0%';
         const canvas = newCard.querySelector('.subject-chart');
         canvas.id = `chart-${i}`;
         newCard.querySelector('.subject-title').onclick = function() { editSubjectName(this); };
@@ -920,25 +923,38 @@
     }
     
     function updateAttendanceHint(totalAttended, totalLectures) {
-      let hintText = "";
+      let hintHTML = "";
       if (totalLectures === 0) {
-        hintText = "";
+        hintHTML = "";
       } else {
         let p = totalAttended / totalLectures * 100;
-        if (p > 75) {
-          let canMiss = Math.floor(totalAttended / 0.75 - totalLectures);
-          hintText = `you can skip ${canMiss} more lecture${canMiss === 1 ? '' : 's'} before falling under 75%.`;
+        if (p >= 75) {
+          let canMiss = Math.floor((4 * totalAttended) / 3 - totalLectures);
+          if (canMiss <= 0) {
+            hintHTML = "you can't skip any more lectures without falling below 75%.";
+          } else {
+            hintHTML = `you can skip ${canMiss} more lecture${canMiss === 1 ? '' : 's'} before falling under 75%.`;
+          }
         } else if (p >= 55) {
           let needAttend = Math.ceil(3 * totalLectures - 4 * totalAttended);
           if (needAttend < 0) needAttend = 0;
-          hintText = `you need to attend ${needAttend} more lecture${needAttend === 1 ? '' : 's'} to reach 75%.`;
+          let line1 = `you need to attend ${needAttend} more lecture${needAttend === 1 ? '' : 's'} to reach 75%.`;
+          
+          let canMiss55 = Math.floor((20 * totalAttended - 11 * totalLectures) / 11);
+          let line2 = "";
+          if (canMiss55 <= 0) {
+            line2 = "you can't skip any more lectures without falling below 55%.";
+          } else {
+            line2 = `you can skip ${canMiss55} more lecture${canMiss55 === 1 ? '' : 's'} before falling under 55%.`;
+          }
+          hintHTML = `${line1}<br>${line2}`;
         } else {
           let needAttend = Math.ceil((0.55 * totalLectures - totalAttended) / 0.45);
           if (needAttend < 0) needAttend = 0;
-          hintText = `you need to attend ${needAttend} more lecture${needAttend === 1 ? '' : 's'} to reach 55%.`;
+          hintHTML = `you need to attend ${needAttend} more lecture${needAttend === 1 ? '' : 's'} to reach 55%.`;
         }
       }
-      document.getElementById('attendanceHint').textContent = hintText;
+      document.getElementById('attendanceHint').innerHTML = hintHTML;
     }
     
     function markAllPresent() {
@@ -1218,6 +1234,10 @@
       if (event.target === modal) {
         closeNumberPicker();
       }
+      const pwaModal = document.getElementById('pwaInstallModal');
+      if (event.target === pwaModal) {
+        closePwaInstallModal();
+      }
     };
     
     function handleTap(button, callback) {
@@ -1326,6 +1346,7 @@
           newCard.querySelector('.subject-title').textContent = subjectName;
           newCard.querySelector('.attended').textContent = '0';
           newCard.querySelector('.total').textContent = '0';
+          newCard.querySelector('.progress-value').textContent = '0%';
           const canvas = newCard.querySelector('.subject-chart');
           canvas.id = `chart-${i}`;
           newCard.querySelector('.subject-title').onclick = function() { editSubjectName(this); };
@@ -1388,43 +1409,31 @@
       closeConfirmModal();
       alert("All data has been reset successfully");
     }
-    
-    const numberOfSubjects = document.querySelectorAll('.subject-card').length;
-    console.log("Number of subjects:", numberOfSubjects);
-    console.log("Optimized and loaded");
   </script>
   <!-- Service Worker registration and inline service worker code for offline support -->
   <script>
-    // Inline manifest injection for browsers that expect a manifest.json file
-    (function() {
-      var manifestTag = document.getElementById('inline-manifest');
-      if (manifestTag) {
-        var manifestContent = manifestTag.textContent;
-        var blob = new Blob([manifestContent], {type: 'application/json'});
-        var manifestURL = URL.createObjectURL(blob);
-        var link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = manifestURL;
-        document.head.appendChild(link);
-      }
-    })();
-
     // Service Worker registration and inline code
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         // Inline service worker code as a blob
         var swCode = `
-          const CACHE_NAME = 'tallycat-cache-v1';
+          const CACHE_NAME = 'tallycat-cache-v12';
           const urlsToCache = [
-            '/',
-            '/index2.html',
-            '/catto.ico',
+            './',
+            'index.html',
+            'manifest.json',
+            'icon-192.png',
+            'icon-512.png',
+            'apple-touch-icon.png',
+            'favicon-96x96.png',
+            'favicon.svg',
+            'favicon.ico',
             'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js'
           ];
           self.addEventListener('install', event => {
             event.waitUntil(
               caches.open(CACHE_NAME)
-                .then(cache => cache.addAll(urlsToCache))
+                .then(cache => Promise.allSettled(urlsToCache.map(url => cache.add(url))))
             );
           });
           self.addEventListener('activate', event => {
@@ -1455,4 +1464,3 @@
   </script>
 </body>
 </html>
-
